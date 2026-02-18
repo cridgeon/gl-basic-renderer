@@ -5,13 +5,10 @@
 #include <GLFW/glfw3.h>
 #include <glad/gl.h>
 
-namespace cridgeon
-{
-    #include "rendering_system.hpp"
-    #include "postprocessor.hpp"
-    #include "shader/all.hpp"
-    #include "framebuffer.hpp"
-} // namespace cridgeon
+#include "rendering_system.hpp"
+#include "postprocessor.hpp"
+#include "shader/all.hpp"
+#include "framebuffer.hpp"
 
 
 #endif

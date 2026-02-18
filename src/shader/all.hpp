@@ -3,7 +3,7 @@
 
 #include "geometry/geometry.hpp"
 
-namespace Render {
+namespace cridgeon::Render {
     inline void destroyAllShaders() {
         destroyGeometryShaders();
     }

@@ -21,23 +21,31 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
 add_subdirectory(glfw)
 
-target_link_libraries(glfw)
-
 # Find OpenGL
 find_package(OpenGL REQUIRED)
 
-# Add main executable
+# Add main library
 file(GLOB LIB_SOURCES
     "src/*.cpp"
-    "src/**/*.cpp"
+    "src/*/*.cpp"
+    "src/*/*/*.cpp"
 )
-# add_executable(main ${MAIN_SOURCES})
 add_library(cridgeon-gl-basic ${LIB_SOURCES})
 
-# Link kalman library to main executable
+# Link libraries
 target_link_libraries(cridgeon-gl-basic glfw OpenGL::GL ${CMAKE_DL_LIBS})
 
-# Include directories for main
+# Include directories
 target_include_directories(cridgeon-gl-basic PRIVATE
-    ${CMAKE_SOURCE_DIR}/glfw/deps
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/glfw/deps
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources
+)
+
+add_custom_command(
+    TARGET cridgeon-gl-basic POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources
+        ${CMAKE_BINARY_DIR}/resources
 )

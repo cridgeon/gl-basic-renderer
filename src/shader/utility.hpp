@@ -3,11 +3,11 @@
 
 #include <glad/gl.h>
 
-namespace ShaderUtility {
+namespace cridgeon::ShaderUtility {
 
     static bool fullScreenQuadInitialized_ = false;
-    static unsigned int fullScreenQuadVAO_ = UINT_MAX;
-    static unsigned int fullScreenQuadVBO_ = UINT_MAX;
+    static unsigned int fullScreenQuadVAO_ = 0;
+    static unsigned int fullScreenQuadVBO_ = 0;
     inline void drawFullScreenQuad() {
         if (!fullScreenQuadInitialized_) {
             // Fullscreen quad vertices (2 triangles)
