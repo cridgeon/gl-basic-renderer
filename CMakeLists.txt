@@ -38,6 +38,7 @@ target_link_libraries(cridgeon-gl-basic glfw OpenGL::GL ${CMAKE_DL_LIBS})
 # Include directories
 target_include_directories(cridgeon-gl-basic PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/glfw/deps
     ${CMAKE_CURRENT_SOURCE_DIR}/resources
