@@ -152,7 +152,7 @@ namespace Render {
 
         // Load shader if not already loaded
         if (!polygonFilledShader.isValid()) {
-            polygonFilledShader.loadFromFile("resources/shaders/geometry/default.vert", "resources/shaders/geometry/color.frag");
+            polygonFilledShader.loadFromFile("resources/shaders/default.vert", "resources/shaders/geometry/color.frag");
             if (!polygonFilledShader.isValid()) {
                 throw std::runtime_error("Failed to load polygon_filled shader");
             }

@@ -18,7 +18,7 @@ namespace Render {
 
         // Load shader if not already loaded
         if (!linesShader.isValid()) {
-            linesShader.loadFromFile("resources/shaders/geometry/default.vert", "resources/shaders/geometry/color.frag");
+            linesShader.loadFromFile("resources/shaders/default.vert", "resources/shaders/geometry/color.frag");
             if (!linesShader.isValid()) {
                 throw std::runtime_error("Failed to load lines shader");
             }

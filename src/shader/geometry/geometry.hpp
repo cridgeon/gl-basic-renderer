@@ -7,6 +7,7 @@
 #include "polygon_filled.hpp"
 #include "line.hpp"
 #include "lines.hpp"
+#include "texture_quad.hpp"
 
 namespace cridgeon {
 namespace Render {
@@ -17,6 +18,7 @@ namespace Render {
         _destroyPolygonFilled();
         _destroyLine();
         _destroyLines();
+        _destroyTextureQuad();
     }
 } // namespace Render
 } // namespace cridgeon

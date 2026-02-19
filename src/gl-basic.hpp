@@ -9,6 +9,7 @@
 #include "postprocessor.hpp"
 #include "shader/all.hpp"
 #include "framebuffer.hpp"
+#include "texture/all.hpp"
 
 
 #endif

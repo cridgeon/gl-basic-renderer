@@ -11,7 +11,7 @@ namespace Render {
 
     void circleFilled(float x, float y, float radius, float r, float g, float b, float a) {
         if (!circleFilledShader.isValid()) {
-            circleFilledShader.loadFromFile("resources/shaders/geometry/default.vert", "resources/shaders/geometry/circle_filled.frag");
+            circleFilledShader.loadFromFile("resources/shaders/default.vert", "resources/shaders/geometry/circle_filled.frag");
             if (!circleFilledShader.isValid()) {
                 throw std::runtime_error("Failed to load circle_filled shader");
             }
