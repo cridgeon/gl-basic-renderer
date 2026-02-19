@@ -33,10 +33,14 @@ file(GLOB LIB_SOURCES
 add_library(cridgeon-gl-basic ${LIB_SOURCES})
 
 # Link libraries
-target_link_libraries(cridgeon-gl-basic glfw OpenGL::GL ${CMAKE_DL_LIBS})
+target_link_libraries(cridgeon-gl-basic PUBLIC 
+    glfw 
+    OpenGL::GL 
+    ${CMAKE_DL_LIBS}
+)
 
 # Include directories
-target_include_directories(cridgeon-gl-basic PRIVATE
+target_include_directories(cridgeon-gl-basic PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
