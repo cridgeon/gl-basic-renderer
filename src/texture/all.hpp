@@ -8,7 +8,7 @@
 
 #include "texture.hpp"
 
-namespace cridgeon::Texture {
+namespace cridgeon {
     /// @brief Cleanup function for texture resources.
     ///        Currently no global texture cleanup needed as textures are RAII.
     inline void destroyAllTextures() {

@@ -100,10 +100,6 @@ namespace Render {
         glBindTexture(GL_TEXTURE_2D, textureID);
         glUniform1i(glGetUniformLocation(textureQuadShader.getID(), "textureSampler"), 0);
 
-        // Enable blending for transparency
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
         // Bind VAO and draw
         glBindVertexArray(textureVAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -111,7 +107,6 @@ namespace Render {
         // Clean up
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
-        glDisable(GL_BLEND);
     }
 
     void _destroyTextureQuad() {
