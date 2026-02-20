@@ -8,6 +8,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/gl.h>
+#include <mutex>
 
 namespace cridgeon
 {
@@ -48,6 +49,9 @@ namespace cridgeon
     
         GLFWwindow* getWindow() const { return window_; }
         const char* getGLSLVersion() const { return glsl_version_; }
+
+        bool takeContext(bool noHang = false);
+        bool releaseContext();
     
     private:
         // Private constructor for singleton
@@ -69,5 +73,7 @@ namespace cridgeon
         const char* glsl_version_;
         
         bool initialized_;
+
+        std::mutex context_mutex_;
     };
 } // namespace cridgeon

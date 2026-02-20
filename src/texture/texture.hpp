@@ -109,9 +109,36 @@ namespace cridgeon {
         /// @returns The height in pixels, or 0 if not loaded.
         int getHeight() const { return height; }
 
+        /// @brief Gets the texture's internal format.
+        /// @returns The internal format of the texture.
+        Format getFormat() const { return internal_format; }
+
+        /// @brief Gets the number of channels for the texture's format.
+        /// @returns Number of channels (3 for RGB, 4 for RGBA, 1 for depth).
+        int getChannelCount() const;
+
         /// @brief Checks if the texture is valid and loaded.
         /// @returns True if the texture has been successfully created/loaded.
         bool isValid() const { return texture_id != 0; }
+
+        /// @brief Reads the texture pixel data into a supplied buffer.
+        /// @param data Pointer to the buffer where pixel data will be written.
+        ///             Buffer must be large enough to hold width * height * getChannelCount() bytes.
+        /// @param format The format to read the pixel data in. If not specified,
+        ///               uses the texture's internal format.
+        /// @returns True if the read succeeded, false otherwise.
+        bool readPixels(unsigned char* data, Format format) const;
+        bool readPixels(unsigned char* data) const;
+
+        /// @brief Saves the texture to an image file.
+        /// @param file_path The path to save the image file. Extension determines format
+        ///                  (.png, .bmp, .tga, .jpg supported).
+        /// @param flip_vertically Whether to flip the image vertically when saving
+        ///                        (default true to match standard image orientation).
+        /// @param quality JPEG quality (1-100) when saving as .jpg (default 90).
+        /// @returns True if save succeeded, false otherwise.
+        bool saveToFile(const std::string& file_path, bool flip_vertically = true, 
+                       int quality = 90) const;
 
     private:
         unsigned int texture_id;     // OpenGL texture ID

@@ -5,6 +5,36 @@
 
 namespace cridgeon
 {
+
+    bool RenderingSystem::takeContext(bool noHang)
+    {
+        if (this->initialized_ && this->window_) {
+            if (noHang) {
+                if (context_mutex_.try_lock()) {
+                    glfwMakeContextCurrent(window_);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                context_mutex_.lock();
+                glfwMakeContextCurrent(window_);
+                return true;
+            }
+        }
+        return false;   
+    }
+
+    bool RenderingSystem::releaseContext()
+    {
+        if (this->initialized_ && this->window_) {
+            glfwMakeContextCurrent(nullptr);
+            context_mutex_.unlock();
+            return true;
+        }
+        return false;
+    }
+
     RenderingSystem::RenderingSystem()
         : window_width_(0), window_height_(0), window_title_(""),
           window_(nullptr), clear_color_{0.05f, 0.05f, 0.08f, 1.0f}, glsl_version_("#version 130"),
@@ -88,6 +118,7 @@ namespace cridgeon
     
     void RenderingSystem::beginFrame() {
         if (!initialized_) return;
+        takeContext();
         
         // Poll and handle events
         glfwPollEvents();
@@ -107,6 +138,8 @@ namespace cridgeon
     
     void RenderingSystem::endFrame() {
         if (!initialized_) return;
+        glfwSwapBuffers(window_);
+        releaseContext();
     }
     
     void RenderingSystem::setClearColor(const float col[4]) {

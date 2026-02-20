@@ -13,6 +13,14 @@
 #endif
 #include <stb_image.h>
 
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif
+#include <stb_image_write.h>
+
+#include <vector>
+#include <algorithm>
+
 namespace cridgeon {
     
     Texture::Texture() 
@@ -175,11 +183,19 @@ namespace cridgeon {
 
         glBindTexture(GL_TEXTURE_2D, texture_id);
 
+        // Set pixel unpack alignment to 1 to avoid row padding issues
+        GLint prev_unpack_alignment;
+        glGetIntegerv(GL_UNPACK_ALIGNMENT, &prev_unpack_alignment);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
         GLenum gl_internal_format = formatToGL(format);
         GLenum gl_format = (format == Format::RGBA) ? GL_RGBA : GL_RGB;
 
         glTexImage2D(GL_TEXTURE_2D, 0, gl_internal_format, width, height, 0, 
                     gl_format, GL_UNSIGNED_BYTE, data);
+
+        // Restore previous alignment
+        glPixelStorei(GL_UNPACK_ALIGNMENT, prev_unpack_alignment);
 
         // Set default parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -255,6 +271,125 @@ namespace cridgeon {
         glBindTexture(gl_target, texture_id);
         glGenerateMipmap(gl_target);
         glBindTexture(gl_target, 0);
+    }
+
+    int Texture::getChannelCount() const {
+        switch (internal_format) {
+            case Format::RGBA:         return 4;
+            case Format::RGB:          return 3;
+            case Format::DEPTH:        return 1;
+            case Format::DEPTH_STENCIL: return 2;
+            default:                   return 4;
+        }
+    }
+
+    bool Texture::readPixels(unsigned char* data) const {
+        return readPixels(data, internal_format);
+    }
+
+    bool Texture::readPixels(unsigned char* data, Format format) const {
+        if (texture_id == 0) {
+            std::cerr << "Error: Attempting to read pixels from invalid texture" << std::endl;
+            return false;
+        }
+
+        if (data == nullptr) {
+            std::cerr << "Error: Null data pointer provided to readPixels" << std::endl;
+            return false;
+        }
+
+        GLenum gl_target = typeToGL(texture_type);
+        GLenum gl_format = formatToGL(format);
+
+        // Set pixel pack alignment to 1 to avoid row padding issues
+        GLint prev_pack_alignment;
+        glGetIntegerv(GL_PACK_ALIGNMENT, &prev_pack_alignment);
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+        glBindTexture(gl_target, texture_id);
+        glGetTexImage(gl_target, 0, gl_format, GL_UNSIGNED_BYTE, data);
+        glBindTexture(gl_target, 0);
+
+        // Restore previous alignment
+        glPixelStorei(GL_PACK_ALIGNMENT, prev_pack_alignment);
+
+        GLenum error = glGetError();
+        if (error != GL_NO_ERROR) {
+            std::cerr << "Error: OpenGL error during texture read: " << error << std::endl;
+            return false;
+        }
+
+        return true;
+    }
+
+    bool Texture::saveToFile(const std::string& file_path, bool flip_vertically, 
+                            int quality) const {
+        if (texture_id == 0) {
+            std::cerr << "Error: Attempting to save invalid texture" << std::endl;
+            return false;
+        }
+
+        if (width <= 0 || height <= 0) {
+            std::cerr << "Error: Invalid texture dimensions for save" << std::endl;
+            return false;
+        }
+
+        // Determine channels based on internal format
+        int channels = getChannelCount();
+        GLenum gl_format = formatToGL(internal_format);
+
+        // Allocate buffer for pixel data
+        std::vector<unsigned char> data(width * height * channels);
+
+        // Set pixel pack alignment to 1 to avoid row padding issues
+        GLint prev_pack_alignment;
+        glGetIntegerv(GL_PACK_ALIGNMENT, &prev_pack_alignment);
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+        // Read texture data from GPU
+        GLenum gl_target = typeToGL(texture_type);
+        glBindTexture(gl_target, texture_id);
+        glGetTexImage(gl_target, 0, gl_format, GL_UNSIGNED_BYTE, data.data());
+        glBindTexture(gl_target, 0);
+
+        // Restore previous alignment
+        glPixelStorei(GL_PACK_ALIGNMENT, prev_pack_alignment);
+
+        GLenum error = glGetError();
+        if (error != GL_NO_ERROR) {
+            std::cerr << "Error: OpenGL error during texture read for save: " << error << std::endl;
+            return false;
+        }
+
+        // Set vertical flip for stb_image_write
+        stbi_flip_vertically_on_write(flip_vertically ? 1 : 0);
+
+        // Determine format from file extension
+        std::string extension = file_path.substr(file_path.find_last_of('.') + 1);
+        std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+        int result = 0;
+        if (extension == "png") {
+            result = stbi_write_png(file_path.c_str(), width, height, channels, 
+                                   data.data(), width * channels);
+        } else if (extension == "bmp") {
+            result = stbi_write_bmp(file_path.c_str(), width, height, channels, data.data());
+        } else if (extension == "tga") {
+            result = stbi_write_tga(file_path.c_str(), width, height, channels, data.data());
+        } else if (extension == "jpg" || extension == "jpeg") {
+            result = stbi_write_jpg(file_path.c_str(), width, height, channels, 
+                                   data.data(), quality);
+        } else {
+            std::cerr << "Error: Unsupported image format: " << extension << std::endl;
+            return false;
+        }
+
+        if (result == 0) {
+            std::cerr << "Error: Failed to write image file: " << file_path << std::endl;
+            return false;
+        }
+
+        return true;
     }
 
     GLenum Texture::formatToGL(Format format) const {
