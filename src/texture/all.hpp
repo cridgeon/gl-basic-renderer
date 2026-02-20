@@ -1,5 +1,5 @@
 /// @file all.hpp
-/// @author Shane
+/// @author Charlie Ridgeon
 /// @date Created: 2026-02-19
 /// @brief Includes all texture-related headers and provides utility functions
 ///        for texture management across the gl-basic-renderer library.

@@ -1,4 +1,9 @@
 #include "rendering_system.hpp"
+
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+#include <glad/gl.h>
+
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
 #include <iostream>
@@ -11,14 +16,14 @@ namespace cridgeon
         if (this->initialized_ && this->window_) {
             if (noHang) {
                 if (context_mutex_.try_lock()) {
-                    glfwMakeContextCurrent(window_);
+                    glfwMakeContextCurrent((GLFWwindow*)window_);
                     return true;
                 } else {
                     return false;
                 }
             } else {
                 context_mutex_.lock();
-                glfwMakeContextCurrent(window_);
+                glfwMakeContextCurrent((GLFWwindow*)window_);
                 return true;
             }
         }
@@ -91,7 +96,7 @@ namespace cridgeon
             glfwTerminate();
             return false;
         }
-        glfwMakeContextCurrent(window_);
+        glfwMakeContextCurrent((GLFWwindow*)window_);
         glfwSwapInterval(1); // Enable vsync
     
         // Initialize GLAD to load OpenGL functions
@@ -113,7 +118,7 @@ namespace cridgeon
             return false;
         }
         
-        return !glfwWindowShouldClose(window_);
+        return !glfwWindowShouldClose((GLFWwindow*)window_);
     }
     
     void RenderingSystem::beginFrame() {
@@ -125,7 +130,7 @@ namespace cridgeon
     
         // Check for window resize
         int display_w, display_h;
-        glfwGetFramebufferSize(window_, &display_w, &display_h);
+        glfwGetFramebufferSize((GLFWwindow*)window_, &display_w, &display_h);
         if (display_w != window_width_ || display_h != window_height_) {
             window_width_ = display_w;
             window_height_ = display_h;
@@ -138,7 +143,7 @@ namespace cridgeon
     
     void RenderingSystem::endFrame() {
         if (!initialized_) return;
-        glfwSwapBuffers(window_);
+        glfwSwapBuffers((GLFWwindow*)window_);
         releaseContext();
     }
     
@@ -152,7 +157,7 @@ namespace cridgeon
         if (!initialized_) return;
     
         if (window_) {
-            glfwDestroyWindow(window_);
+            glfwDestroyWindow((GLFWwindow*)window_);
             window_ = nullptr;
         }
         glfwTerminate();

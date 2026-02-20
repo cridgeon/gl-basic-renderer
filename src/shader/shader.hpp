@@ -3,7 +3,6 @@
 #include <string>
 #include <unordered_map>
 #include <iostream>
-#include <glad/gl.h>
 
 namespace cridgeon {
     class Shader {

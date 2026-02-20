@@ -5,9 +5,6 @@
 #include <string>
 #include <functional>
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#include <glad/gl.h>
 #include <mutex>
 
 namespace cridgeon
@@ -47,7 +44,6 @@ namespace cridgeon
         // Cleanup
         void shutdown();
     
-        GLFWwindow* getWindow() const { return window_; }
         const char* getGLSLVersion() const { return glsl_version_; }
 
         bool takeContext(bool noHang = false);
@@ -68,7 +64,7 @@ namespace cridgeon
         int window_height_;
         std::string window_title_;
         
-        GLFWwindow* window_;
+        void* window_;
         float clear_color_[4];
         const char* glsl_version_;
         

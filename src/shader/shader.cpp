@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <glad/gl.h>
 
 namespace cridgeon
 {

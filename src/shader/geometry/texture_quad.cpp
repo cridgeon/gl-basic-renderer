@@ -1,5 +1,5 @@
 /// @file texture_quad.cpp
-/// @author Shane
+/// @author Charlie Ridgeon
 /// @date Created: 2026-02-19
 /// @date Updated: 2026-02-19
 /// @brief Implementation of textured quad rendering with OpenGL.

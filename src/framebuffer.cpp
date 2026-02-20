@@ -1,5 +1,6 @@
 #include "framebuffer.hpp"
 #include <iostream>
+#include <glad/gl.h>
 
 namespace cridgeon
 {

@@ -1,5 +1,5 @@
 /// @file texture_quad.hpp
-/// @author Shane
+/// @author Charlie Ridgeon
 /// @date Created: 2026-02-19
 /// @date Updated: 2026-02-19
 /// @brief Renders textured quads with position, dimensions, and subtexture support.

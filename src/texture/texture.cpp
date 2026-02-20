@@ -1,11 +1,12 @@
 /// @file texture.cpp
-/// @author Shane
+/// @author Charlie Ridgeon
 /// @date Created: 2026-02-19
 /// @brief Implementation of OpenGL texture class with comprehensive texture
 ///        management functionality including loading from files and raw data,
 ///        parameter setting, and proper resource cleanup.
 
 #include "texture.hpp"
+#include <glad/gl.h>
 #include <iostream>
 
 #ifndef STB_IMAGE_IMPLEMENTATION
@@ -22,6 +23,46 @@
 #include <algorithm>
 
 namespace cridgeon {
+
+    GLenum formatToGL(Texture::Format format) {
+        switch (format) {
+            case Texture::Format::RGB:          return GL_RGB;
+            case Texture::Format::RGBA:         return GL_RGBA;
+            case Texture::Format::DEPTH:        return GL_DEPTH_COMPONENT;
+            case Texture::Format::DEPTH_STENCIL: return GL_DEPTH_STENCIL;
+            default:                   return GL_RGBA;
+        }
+    }
+
+    GLenum filterToGL(Texture::Filter filter) {
+        switch (filter) {
+            case Texture::Filter::NEAREST:               return GL_NEAREST;
+            case Texture::Filter::LINEAR:                return GL_LINEAR;
+            case Texture::Filter::NEAREST_MIPMAP_NEAREST: return GL_NEAREST_MIPMAP_NEAREST;
+            case Texture::Filter::LINEAR_MIPMAP_NEAREST:  return GL_LINEAR_MIPMAP_NEAREST;
+            case Texture::Filter::NEAREST_MIPMAP_LINEAR:  return GL_NEAREST_MIPMAP_LINEAR;
+            case Texture::Filter::LINEAR_MIPMAP_LINEAR:   return GL_LINEAR_MIPMAP_LINEAR;
+            default:                            return GL_LINEAR;
+        }
+    }
+
+    GLenum wrapToGL(Texture::Wrap wrap) {
+        switch (wrap) {
+            case Texture::Wrap::REPEAT:          return GL_REPEAT;
+            case Texture::Wrap::MIRRORED_REPEAT: return GL_MIRRORED_REPEAT;
+            case Texture::Wrap::CLAMP_TO_EDGE:   return GL_CLAMP_TO_EDGE;
+            case Texture::Wrap::CLAMP_TO_BORDER: return GL_CLAMP_TO_BORDER;
+            default:                    return GL_REPEAT;
+        }
+    }
+
+    GLenum typeToGL(Texture::Type type) {
+        switch (type) {
+            case Texture::Type::TEXTURE_2D:      return GL_TEXTURE_2D;
+            case Texture::Type::TEXTURE_CUBE_MAP: return GL_TEXTURE_CUBE_MAP;
+            default:                    return GL_TEXTURE_2D;
+        }
+    }
     
     Texture::Texture() 
         : texture_id(0)
@@ -33,42 +74,8 @@ namespace cridgeon {
 
     Texture::~Texture() {
         if (texture_id != 0) {
-            glDeleteTextures(1, &texture_id);
-            texture_id = 0;
+            std::cerr << "Warning: Texture destroyed without explicit destroy() call. Make sure you know what you're doing and destroy the GL resources manually." << std::endl;
         }
-    }
-
-    Texture::Texture(Texture&& other) noexcept
-        : texture_id(other.texture_id)
-        , texture_type(other.texture_type)
-        , internal_format(other.internal_format)
-        , width(other.width)
-        , height(other.height) {
-        other.texture_id = 0;
-        other.width = 0;
-        other.height = 0;
-    }
-
-    Texture& Texture::operator=(Texture&& other) noexcept {
-        if (this != &other) {
-            // Clean up current texture
-            if (texture_id != 0) {
-                glDeleteTextures(1, &texture_id);
-            }
-            
-            // Move from other
-            texture_id = other.texture_id;
-            texture_type = other.texture_type;
-            internal_format = other.internal_format;
-            width = other.width;
-            height = other.height;
-            
-            // Reset other
-            other.texture_id = 0;
-            other.width = 0;
-            other.height = 0;
-        }
-        return *this;
     }
 
     bool Texture::create(int width, int height, Format format, Type type) {
@@ -392,43 +399,13 @@ namespace cridgeon {
         return true;
     }
 
-    GLenum Texture::formatToGL(Format format) const {
-        switch (format) {
-            case Format::RGB:          return GL_RGB;
-            case Format::RGBA:         return GL_RGBA;
-            case Format::DEPTH:        return GL_DEPTH_COMPONENT;
-            case Format::DEPTH_STENCIL: return GL_DEPTH_STENCIL;
-            default:                   return GL_RGBA;
-        }
-    }
-
-    GLenum Texture::filterToGL(Filter filter) const {
-        switch (filter) {
-            case Filter::NEAREST:               return GL_NEAREST;
-            case Filter::LINEAR:                return GL_LINEAR;
-            case Filter::NEAREST_MIPMAP_NEAREST: return GL_NEAREST_MIPMAP_NEAREST;
-            case Filter::LINEAR_MIPMAP_NEAREST:  return GL_LINEAR_MIPMAP_NEAREST;
-            case Filter::NEAREST_MIPMAP_LINEAR:  return GL_NEAREST_MIPMAP_LINEAR;
-            case Filter::LINEAR_MIPMAP_LINEAR:   return GL_LINEAR_MIPMAP_LINEAR;
-            default:                            return GL_LINEAR;
-        }
-    }
-
-    GLenum Texture::wrapToGL(Wrap wrap) const {
-        switch (wrap) {
-            case Wrap::REPEAT:          return GL_REPEAT;
-            case Wrap::MIRRORED_REPEAT: return GL_MIRRORED_REPEAT;
-            case Wrap::CLAMP_TO_EDGE:   return GL_CLAMP_TO_EDGE;
-            case Wrap::CLAMP_TO_BORDER: return GL_CLAMP_TO_BORDER;
-            default:                    return GL_REPEAT;
-        }
-    }
-
-    GLenum Texture::typeToGL(Type type) const {
-        switch (type) {
-            case Type::TEXTURE_2D:      return GL_TEXTURE_2D;
-            case Type::TEXTURE_CUBE_MAP: return GL_TEXTURE_CUBE_MAP;
-            default:                    return GL_TEXTURE_2D;
+    void Texture::destroy()
+    {
+        if (texture_id != 0) {
+            glDeleteTextures(1, &texture_id);
+            texture_id = 0;
+            width = 0;
+            height = 0;
         }
     }
 

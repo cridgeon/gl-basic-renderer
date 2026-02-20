@@ -1,14 +1,13 @@
 /// @file texture.hpp
-/// @author Shane
+/// @author Charlie Ridgeon
 /// @date Created: 2026-02-19
 /// @brief OpenGL texture class for handling texture creation, loading, and 
 ///        destruction. Supports 2D textures with common image formats and
 ///        provides utilities for texture binding and parameter management.
-
-#pragma once
+#ifndef CRIDGEON_TEXTURE_HPP
+#define CRIDGEON_TEXTURE_HPP
 
 #include <string>
-#include <glad/gl.h>
 
 namespace cridgeon {
     class Texture {
@@ -47,10 +46,6 @@ namespace cridgeon {
         // Disable copy constructor and assignment operator
         Texture(const Texture&) = delete;
         Texture& operator=(const Texture&) = delete;
-
-        // Enable move constructor and assignment operator
-        Texture(Texture&& other) noexcept;
-        Texture& operator=(Texture&& other) noexcept;
 
         /// @brief Creates an empty texture with specified dimensions and format.
         /// @param width The width of the texture in pixels.
@@ -140,31 +135,16 @@ namespace cridgeon {
         bool saveToFile(const std::string& file_path, bool flip_vertically = true, 
                        int quality = 90) const;
 
+        /// @brief Destroys the texture and releases GPU resources.
+        void destroy();
+
     private:
         unsigned int texture_id;     // OpenGL texture ID
         Type texture_type;           // Type of texture (2D, cube map, etc.)
         Format internal_format;      // Internal texture format
         int width;                   // Texture width in pixels
         int height;                  // Texture height in pixels
-
-        /// @brief Converts internal Format enum to OpenGL format constant.
-        /// @param format The format to convert.
-        /// @returns The corresponding OpenGL format constant.
-        GLenum formatToGL(Format format) const;
-
-        /// @brief Converts internal Filter enum to OpenGL filter constant.
-        /// @param filter The filter to convert.
-        /// @returns The corresponding OpenGL filter constant.
-        GLenum filterToGL(Filter filter) const;
-
-        /// @brief Converts internal Wrap enum to OpenGL wrap constant.
-        /// @param wrap The wrap mode to convert.
-        /// @returns The corresponding OpenGL wrap constant.
-        GLenum wrapToGL(Wrap wrap) const;
-
-        /// @brief Converts internal Type enum to OpenGL target constant.
-        /// @param type The type to convert.
-        /// @returns The corresponding OpenGL target constant.
-        GLenum typeToGL(Type type) const;
     };
 }
+
+#endif // CRIDGEON_TEXTURE_HPP
