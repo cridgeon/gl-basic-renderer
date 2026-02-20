@@ -15,18 +15,23 @@ namespace cridgeon {
 namespace Render {
 
     static Shader textureQuadShader;
-    static bool textureVAOInitialized = false;
-    static unsigned int textureVAO = 0;
-    static unsigned int textureVBO = 0;
-    static unsigned int textureEBO = 0;
 
     /// @brief Initialize the texture quad VAO and shader if needed.
-    static void initializeTextureQuad() {
-        if (textureVAOInitialized) return;
+    static bool initializeTextureQuad(
+        unsigned int& vao, unsigned int& vbo, unsigned int& ebo,
+        float x, float y, float w, float h
+    ) {
+        // Load shader (using default.vert)
+        if (!textureQuadShader.isValid() && !textureQuadShader.loadFromFile(
+            "resources/shaders/default.vert", 
+            "resources/shaders/texture.frag")) {
+            std::cerr << "Failed to load texture quad shader" << std::endl;
+            return false;
+        }
 
         // Create and bind VAO
-        glGenVertexArrays(1, &textureVAO);
-        glBindVertexArray(textureVAO);
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
 
         // Define quad vertices (positions only, texture coords calculated in shader)
         float vertices[] = {
@@ -37,6 +42,12 @@ namespace Render {
             0.0f, 1.0f   // Top-left
         };
 
+        auto& rs = RenderingSystem::getInstance();
+        for (int i = 0; i < 4; ++i) {
+            vertices[i * 2] =     (((vertices[i * 2]    ) * w + x) / rs.getWindowWidth() ) * 2.0 - 1.0;
+            vertices[i * 2 + 1] = (((vertices[i * 2 + 1]) * h + y) / rs.getWindowHeight()) * 2.0 - 1.0;
+        }
+
         // Define indices for two triangles
         unsigned int indices[] = {
             0, 1, 2,  // First triangle
@@ -44,27 +55,19 @@ namespace Render {
         };
 
         // Create and set up VBO
-        glGenBuffers(1, &textureVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
         // Create and set up EBO
-        glGenBuffers(1, &textureEBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, textureEBO);
+        glGenBuffers(1, &ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
         // Position attribute (only attribute needed for default.vert)
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
-
-        // Load shader (using default.vert)
-        if (!textureQuadShader.loadFromFile(
-            "resources/shaders/default.vert", 
-            "resources/shaders/texture.frag")) {
-            std::cerr << "Failed to load texture quad shader" << std::endl;
-        }
-
-        textureVAOInitialized = true;
+        return true;
     }
 
     void textureQuad(unsigned int textureID, 
@@ -73,9 +76,12 @@ namespace Render {
                      float r, float g, float b, float a) {
         
         // Initialize if needed
-        initializeTextureQuad();
 
-        if (!textureQuadShader.isValid()) {
+        unsigned int textureVAO, textureVBO, textureEBO;
+        if (!initializeTextureQuad(
+            textureVAO, textureVBO, textureEBO, 
+            x, y, w, h
+        )) {
             std::cerr << "Texture quad shader is not valid" << std::endl;
             return;
         }
@@ -107,16 +113,14 @@ namespace Render {
         // Clean up
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
+
+        glDeleteVertexArrays(1, &textureVAO);
+        glDeleteBuffers(1, &textureVBO);
+        glDeleteBuffers(1, &textureEBO);
     }
 
     void _destroyTextureQuad() {
-        if (textureVAOInitialized) {
-            glDeleteVertexArrays(1, &textureVAO);
-            glDeleteBuffers(1, &textureVBO);
-            glDeleteBuffers(1, &textureEBO);
-            textureQuadShader.destroy();
-            textureVAOInitialized = false;
-        }
+        textureQuadShader.destroy();
     }
 
 } // namespace Render
