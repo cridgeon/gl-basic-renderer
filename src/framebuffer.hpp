@@ -37,12 +37,12 @@ namespace cridgeon
         // Resize the framebuffer
         bool resize(int newWidth, int newHeight);
     
+        void cleanup();
     private:
         unsigned int framebufferID;
         unsigned int colorTexture;
         unsigned int depthRenderbuffer;
         int width, height;
     
-        void cleanup();
     };
 } // namespace cridgeon
