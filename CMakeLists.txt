@@ -45,6 +45,7 @@ target_include_directories(cridgeon-gl-basic PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/glfw/deps
+    ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include
     ${CMAKE_CURRENT_SOURCE_DIR}/resources
 )
 
